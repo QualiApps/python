@@ -1,3 +1,3 @@
 python
 ======
-Calculator
+Calculator (without priority operations)
