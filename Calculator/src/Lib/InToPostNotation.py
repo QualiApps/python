@@ -92,7 +92,7 @@ class InToPostNotation(CalculateRPN):
             else:
                 raise Exception("Unknown token: " + token)
             pos += 1
-            # Adds latest values to the output string
+        # Adds latest values to the output string
         while sl > 0:
             stack_token = stack[sl - 1]
             if stack_token == self.left_bracket or stack_token == self.right_bracket:
