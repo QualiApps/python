@@ -8,5 +8,5 @@ python
 <li>use brackets</li>
 <li>use math functions</li>
 <li>use custom functions</li>
-<li>add a new functions and operators</li>
+<li>add new functions and operators</li>
 </ul>
