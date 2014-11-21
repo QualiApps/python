@@ -2,12 +2,12 @@ __author__ = 'yuri'
 import math
 
 
-class Operators():
+class Actions():
     def __init__(self):
         self.function_flag = 'F'
         self.left_bracket = '('
         self.right_bracket = ')'
-        self.prior = {'*': 3, '/': 3, '%': 3, '+': 2, '-': 2, '=': 1}
+        self.prior = {'*': 4, '/': 4, '%': 4, '-': 3, '+': 2, '=': 1}
         self.operators = {
             '+': self.plus,
             '-': self.minus,
@@ -15,22 +15,28 @@ class Operators():
             '/': self.divide,
             '%': self.divide_by_module
         }
-        self.functions = {
-            # Core functions  #You may implement more functions here
-            'log': math.log,
-            'sqrt': math.sqrt,
-            'sin': math.sin,
-            'cos': math.cos,  # Custom functions
-            'f': self.f
-        }
 
-    def execute(self, operand_a, operand_b, token):
+    def action(self, operand_a, operand_b, token):
         # Execute for operators
         return self.operators[token](operand_a, operand_b)
 
-    def execute_function(self, args, token):
+    def function(self, args, name):
         # Execute for functions
-        return self.functions[token](*args)
+        if self.check_function(name, math):
+            function = getattr(math, name)
+        elif self.check_function(name, self):
+            function = getattr(self, name)
+        else:
+            raise Exception("Unsupported function of the expression: " + name)
+        return function(*args)
+
+    def is_function(self, function):
+        # Check if function
+        return True if self.check_function(function, math) or self.check_function(function, self) else False
+
+    def check_function(self, name, obj):
+        # If function is available
+        return True if name in dir(obj) else False
 
     def is_operator(self, symbol):
         # Check if operator

@@ -1,26 +1,19 @@
 __author__ = 'yuri'
-from CalculateRPN import CalculateRPN
+import re
 
 
-class InToPostNotation(CalculateRPN):
+class InToPostNotation():
     # Create a reverse polish notation ( 3+2 -> 3 2 +)
-    # Then calculate it
-    __output = ''
-
     def __init__(self):
-        CalculateRPN.__init__(self)
+        self.__output = ''
 
-    def exec_action(self, expr):
-        # Generate RPN
-        rpn = self.__get_rpn(expr)
-        return self.calculate_rpn(rpn)  # calculate
-
-    def __get_rpn(self, expr):
+    def get_rpn(self, expr):
         # Generate RPN
         space = False
         pos = 0
         sl = 0
         stack = []
+        expr = self.__check_expr(expr)
         self.__clear_output()
         while pos < len(expr):
             token = expr[pos]
@@ -41,7 +34,7 @@ class InToPostNotation(CalculateRPN):
                 stack.insert(sl, func)
                 sl += 1
                 pos -= 1
-            #If the delimiter of the argument
+            #If the delimiter of arguments
             elif token == ',':
                 space = True
                 pe = False
@@ -101,6 +94,17 @@ class InToPostNotation(CalculateRPN):
             sl -= 1
         return self.__get_output()
 
+    def __check_expr(self, expr):
+        # Removes white spaces
+        rg = re.compile(r'\s+')
+        expr = rg.sub('', expr)
+        mapping = [('(-', '(0-'), (',-', ',0-'), ('(+', '(0+'), (',+', ',0+')]
+        for k, v in mapping:
+            expr = expr.replace(k, v)
+        if expr[0] == '-' or expr[0] == '+':
+            expr = '0' + expr
+        return expr
+
     def __set_output(self, symbol, space=True):
         # Generate output string in RPN
         if space is True:
@@ -111,17 +115,11 @@ class InToPostNotation(CalculateRPN):
 
     def __is_number(self, symbol):
         # Checks a token
-        result = False
-        if '9' >= symbol >= '0' or symbol == '.':
-            result = True
-        return result
+        return True if symbol.isdigit() or symbol == '.' else False
 
     def __is_function(self, symbol):
         # Is the token a function
-        result = False
-        if 'z' >= symbol >= 'a' or '9' >= symbol >= '0':
-            result = True
-        return result
+        return True if symbol.lower().isalnum() else False
 
     def __clear_output(self):
         # Resets RPN
@@ -129,4 +127,5 @@ class InToPostNotation(CalculateRPN):
 
     def __get_output(self):
         # Retrieves RPN
+        print self.__output
         return self.__output

@@ -1,25 +1,17 @@
 __author__ = 'yuri'
 import re
-from Lib import Calculator
+from Calculator import Calculator
 
-
-def clear_string(string):
-    # Removes white spaces
-    rg = re.compile(r'\s+')
-    return rg.sub('', string)
-
-
-calc = Calculator.Calculator()
+calc = Calculator()
 print "Expression for calculation ( ex: (5+5)*5/sin(.5)+sqrt(25) ):"
 while True:
-    # Remove all white spaces
-    cleanString = clear_string(raw_input("Enter your expression: "))
+    expression = raw_input("Enter your expression: ")
     # Exit action
-    if cleanString == 'exit':
+    if expression == 'exit':
         break
-    try:
-        result = calc.calculate(cleanString)
-    except Exception as e:
-        result = e
-    finally:
-        print "Result =", result
+    #try:
+    result = "Result = " + str(calc.calculate(expression))
+    #except Exception as e:
+    #    result = e
+    #finally:
+    print result

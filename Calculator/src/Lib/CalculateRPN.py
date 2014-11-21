@@ -1,10 +1,11 @@
 __author__ = 'yuri'
-from Operators import Operators
+from Actions import Actions
 
 
-class CalculateRPN(Operators):
+class CalculateRPN(Actions):
     def __init__(self):
-        Operators.__init__(self)
+        Actions.__init__(self)
+        self.__number = 0
 
     def calculate_rpn(self, rpn):
         # Calculate RPN
@@ -16,30 +17,26 @@ class CalculateRPN(Operators):
             #If operator
             if token in self.operators:
                 if len(stack) < 2:
-                    raise Exception("Insufficient data on the stack for the operation: " + token)
+                    raise Exception("Invalid syntax near operator: " + token)
                 op_b = stack.pop()
                 op_a = stack.pop()
-                result = self.execute(op_a, op_b, token)
-                stack.append(result)
+                stack.append(self.action(op_a, op_b, token))
             #If function
-            elif token in self.functions:
+            elif self.is_function(token):
                 args = []
                 while True:
-                    operand = stack.pop()
-                    if operand == self.function_flag:
+                    argument = stack.pop()
+                    if argument == self.function_flag:
                         args.reverse()
                         break
-                    args.append(operand)
-                result = self.execute_function(args, token)
-                stack.append(result)
+                    args.append(argument)
+                stack.append(self.function(args, token))
             #If number
-            elif self.is_digit(token) is True:
-                stack.append(float(token))
+            elif self.__digit(token):
+                stack.append(self.__number)
             #If start flag of function
             elif token == self.function_flag:
                 stack.append(token)
-                position += 1
-                continue
             else:
                 raise Exception("Invalid character in the expression: " + token)
             position += 1
@@ -47,12 +44,12 @@ class CalculateRPN(Operators):
             raise Exception("The number of operators does not match to the number of operands: " + token)
         return stack.pop()
 
-    def is_digit(self, number):
+    def __digit(self, number):
         # Check if number
         try:
-            float(number)
+            self.__number = float(number)
             digit = True
-        except:
+        except ValueError:
             digit = False
         finally:
             return digit
