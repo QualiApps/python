@@ -1,5 +1,4 @@
 __author__ = 'yuri'
-import re
 from Calculator import Calculator
 
 calc = Calculator()
@@ -9,9 +8,9 @@ while True:
     # Exit action
     if expression == 'exit':
         break
-    #try:
-    result = "Result = " + str(calc.calculate(expression))
-    #except Exception as e:
-    #    result = e
-    #finally:
-    print result
+    try:
+        result = "Result = " + str(calc.calculate(expression))
+    except Exception as e:
+        result = e
+    finally:
+        print result

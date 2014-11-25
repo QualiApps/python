@@ -2,11 +2,12 @@ python
 ======
 <b>Calculator</b><br>
 <p>This application implements the Shunting-yard algorithm and then a reverse polish notation (rpn) is calculated using a stack.</p>
-<b>What allows the app:</b>
+<b>What supports the app:</b>
 <ul>
+<li>infinite nesting of functions (ex: function(function(1,2),function(3,4)))</li>
 <li>priority of operations</li>
-<li>use brackets</li>
-<li>use math functions</li>
-<li>use custom functions</li>
+<li>brackets</li>
+<li>all math functions</li>
+<li>custom functions</li>
 <li>add new functions and operators</li>
 </ul>
