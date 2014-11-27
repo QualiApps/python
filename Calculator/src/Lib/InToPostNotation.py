@@ -18,10 +18,11 @@ class InToPostNotation():
         current = 0
         stack_size = 0
         stack = []
-        expr = self.__check_expr(expr)
+        expr = self.remove_spaces(expr)
         self.__clear_output()
         while current < len(expr):
             token = expr[current]
+            self.__check_expr(expr, current)
             # If token is number -> add to the output string
             if self.__is_number(token) is True:
                 self.__set_output(token, space)
@@ -64,10 +65,12 @@ class InToPostNotation():
                     else:
                         break
                 # Check if a double operator
-                if len(stack) > stack_size and stack[stack_size] == token:
-                    stack[stack_size] += token
+                if len(stack) > stack_size and stack[stack_size] == token \
+                        and self.__is_operator(stack[stack_size] + token) is True:
+                    stack[stack_size] += token  # Concatenate operators
                 else:
                     stack.insert(stack_size, token)
+                # If next operator is the same and it's available
                 if current + 1 <= len(expr) and expr[current + 1] == token \
                         and self.__is_operator(token + expr[current + 1]) is True:
                     delimiter = ''
@@ -130,16 +133,17 @@ class InToPostNotation():
         # Check if operator
         return True if symbol in self.operators else False
 
+    def __check_expr(self, expr, pos):
+        # Checks the sign of the operand
+        if (expr[pos] in ('-', '+')) \
+                and (pos == 0 or pos > 0 and expr[pos-1] in (self.left_bracket, self.args_separator)):
+            self.__set_output('0')
+
     @staticmethod
-    def __check_expr(expr):
+    def remove_spaces(expr):
         # Removes white spaces
         rg = re.compile(r'\s+')
-        expr = rg.sub('', expr)
-        mapping = [('(-', '(0-'), (',-', ',0-'), ('(+', '(0+'), (',+', ',0+')]
-        for k, v in mapping:
-            expr = expr.replace(k, v)
-        expr = '0' + expr if expr[0] == '-' or expr[0] == '+' else expr
-        return expr
+        return rg.sub('', expr)
 
     @staticmethod
     def __is_number(symbol):

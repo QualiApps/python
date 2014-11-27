@@ -19,12 +19,10 @@ class CalculateRPN():
             # If operator
             if token in self.operators:
                 if len(stack) < 2:
-                    raise Exception("Invalid syntax near operator: " + token)
-                args = list()
-                args.append(stack.pop())
-                args.append(stack.pop())
-                args.reverse()
-                stack.append(self.action(args, token))
+                    raise Exception("Invalid syntax near the operator: " + token)
+                b = stack.pop()
+                a = stack.pop()
+                stack.append(self.action(token, a, b))
             # If function
             elif self.is_function(token):
                 args = list()
@@ -34,7 +32,7 @@ class CalculateRPN():
                         args.reverse()
                         break
                     args.append(argument)
-                stack.append(self.function(args, token))
+                stack.append(self.function(token, args))
             #If number
             elif self.digit(token):
                 stack.append(self.__number)
@@ -51,20 +49,20 @@ class CalculateRPN():
     def digit(self, number):
         # Check if number
         try:
-            self.__number = float(number)
+            self.__number = int(number) if number.isdigit() else float(number)
             digit = True
         except ValueError:
             digit = False
         finally:
             return digit
 
-    def action(self, args, token):
+    def action(self, token, *args):
         # Execute for operators
         prior, action = self.operators.get(token)
         action = getattr(operator, action)
         return action(*args)
 
-    def function(self, args, name):
+    def function(self, name, args):
         # Execute for functions
         if self.check_function(name, math):
             function = getattr(math, name)
