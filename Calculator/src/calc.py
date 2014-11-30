@@ -1,7 +1,7 @@
 __author__ = 'yuri'
-from Calculator import Calculator
+from Lib.InToPostNotation import InToPostNotation
+from Lib.CalculateRPN import CalculateRPN
 
-calc = Calculator()
 print "Expression for calculation ( ex: (5+5)*5/sin(.5)+sqrt(25) ):"
 while True:
     expression = raw_input("Enter your expression: ")
@@ -9,7 +9,8 @@ while True:
     if expression == 'exit':
         break
     try:
-        result = "Result = " + str(calc.calculate(expression))
+        rpn = InToPostNotation().get_rpn(expression)
+        result = "Result = " + str(CalculateRPN().calculate_expr(rpn))
     except Exception as e:
         result = e
     finally:
