@@ -7,7 +7,6 @@ class CalculateRPN():
     _instance = None
 
     def __init__(self, flag='F'):
-        print 'aaa'
         self.__number = 0
         self.operators = {'**': 'pow', '*': 'mul', '/': 'div', '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
         self.function_flag = flag
