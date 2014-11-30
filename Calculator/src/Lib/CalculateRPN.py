@@ -4,13 +4,21 @@ import operator
 
 
 class CalculateRPN():
-    def __init__(self, operators, flag='F'):
+    _instance = None
+
+    def __init__(self, flag='F'):
+        print 'aaa'
         self.__number = 0
-        self.operators = operators
+        self.operators = {'**': 'pow', '*': 'mul', '/': 'div', '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
         self.function_flag = flag
 
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(CalculateRPN, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def calculate_expr(self, rpn):
-        # Calculate RPN
+        """Calculate RPN"""
         stack = []
         rpn = rpn.split()
         position = 0
@@ -47,7 +55,7 @@ class CalculateRPN():
         return stack.pop()
 
     def digit(self, number):
-        # Check if number
+        """Check if number"""
         try:
             self.__number = int(number) if number.isdigit() else float(number)
             digit = True
@@ -57,13 +65,12 @@ class CalculateRPN():
             return digit
 
     def action(self, token, *args):
-        # Execute for operators
-        prior, action = self.operators.get(token)
-        action = getattr(operator, action)
+        """Execute for operators"""
+        action = getattr(operator, self.operators.get(token))
         return action(*args)
 
     def function(self, name, args):
-        # Execute for functions
+        """Execute for functions"""
         if self.check_function(name, math):
             function = getattr(math, name)
         elif self.check_function(name, self):
@@ -73,15 +80,15 @@ class CalculateRPN():
         return function(*args)
 
     def is_function(self, function):
-        # Check if function
+        """Check if function"""
         return True if self.check_function(function, math) or self.check_function(function, self) else False
 
     @staticmethod
     def check_function(name, obj):
-        # If function is available
+        """If function is available"""
         return True if name in dir(obj) else False
 
     @staticmethod
     def f(a, b):
-        # Custom function
+        """Custom function"""
         return a + b

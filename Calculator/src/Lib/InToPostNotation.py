@@ -3,29 +3,39 @@ import re
 
 
 class InToPostNotation():
-    # Create a reverse polish notation ( 3+2 -> 3 2 +, or 3+2+function(1,2) -> 3 2 F 1 2 function + +)
-    def __init__(self, operators, flag='F'):
+    """Create a reverse polish notation ( 3+2 -> 3 2 +, or 3+2+function(1,2) -> 3 2 F 1 2 function + +)"""
+    _instance = None
+
+    def __init__(self, flag='F'):
+        self.__expression = ''
         self.__output = ''
         self.function_flag = flag  # The start flag of the function arguments
         self.args_separator = ','  # The delimiter of the function arguments
         self.left_bracket = '('
         self.right_bracket = ')'
-        self.operators = operators  # Available operators and their precedences, actions
+        # Available operators and their precedences
+        self.operators = {'**': 4, '*': 3, '/': 3, '//': 3, '%': 3, '-': 2, '+': 1}
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(InToPostNotation, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
 
     def get_rpn(self, expr):
-        # Generate RPN
+        """Generate RPN"""
         space = False
         current = 0
         stack_size = 0
         stack = []
-        expr = self.remove_spaces(expr)
+        self.__expression = self.remove_spaces(expr)
         self.__clear_output()
-        while current < len(expr):
-            token = expr[current]
-            self.__check_expr(expr, current)
+        while current < len(self.__expression):
+            token = self.__expression[current]
+            self.__check_expr(current)
             # If token is number -> add to the output string
             if self.__is_number(token) is True:
                 self.__set_output(token, space)
+                self.__check_expr_mul(current)
                 space = False
             # If token is function -> grab function name and add into the stack
             elif self.__is_function(token):
@@ -33,7 +43,7 @@ class InToPostNotation():
                 while self.__is_function(token):
                     func += token
                     current += 1
-                    token = expr[current]
+                    token = self.__expression[current]
                 # Mark function with F
                 self.__set_output(self.function_flag, space)
                 space = True
@@ -66,13 +76,14 @@ class InToPostNotation():
                         break
                 # Check if a double operator
                 if len(stack) > stack_size and stack[stack_size] == token \
+                    and current > 0 and self.__expression[current - 1] == token \
                         and self.__is_operator(stack[stack_size] + token) is True:
                     stack[stack_size] += token  # Concatenate operators
                 else:
                     stack.insert(stack_size, token)
                 # If next operator is the same and it's available
-                if current + 1 <= len(expr) and expr[current + 1] == token \
-                        and self.__is_operator(token + expr[current + 1]) is True:
+                if current + 1 <= len(self.__expression) and self.__expression[current + 1] == token \
+                        and self.__is_operator(token + self.__expression[current + 1]) is True:
                     delimiter = ''
                 else:
                     delimiter = ' '
@@ -82,6 +93,7 @@ class InToPostNotation():
                 stack.insert(stack_size, token)
                 stack_size += 1
             elif token == self.right_bracket:
+                self.__check_expr_mul(current)
                 check = False
                 while stack_size > 0:
                     stack_token = stack[stack_size - 1]
@@ -112,45 +124,52 @@ class InToPostNotation():
         return self.__get_output()
 
     def __set_output(self, symbol='', space=True):
-        # Generate output string in RPN
+        """Generate output string in RPN"""
         space = ' ' if space is True else ''
         self.__output += space + symbol
 
     def __clear_output(self):
-        # Resets RPN
+        """Resets RPN"""
         self.__output = ''
 
     def __get_output(self):
-        # Retrieves RPN
+        """Retrieves RPN"""
         return self.__output
 
     def __check_prior(self, symbol):
-        # Check priority
-        prior, action = self.operators.get(symbol, (lambda: 0)())
-        return prior
+        """Check priority"""
+        return self.operators.get(symbol, (lambda: 0)())
 
     def __is_operator(self, symbol):
-        # Check if operator
+        """Check if operator"""
         return True if symbol in self.operators else False
 
-    def __check_expr(self, expr, pos):
-        # Checks the sign of the operand
-        if (expr[pos] in ('-', '+')) \
-                and (pos == 0 or pos > 0 and expr[pos-1] in (self.left_bracket, self.args_separator)):
+    def __check_expr(self, pos):
+        """Checks the sign of the operand"""
+        if (self.__expression[pos] in ('-', '+')) \
+                and (pos == 0 or pos > 0 and self.__expression[pos-1] in (self.left_bracket, self.args_separator)):
             self.__set_output('0')
+
+    def __check_expr_mul(self, pos):
+        """Adds the '*' to the input expression if it includes 3(...; 3function(; )6"""
+        if pos < len(self.__expression)-1:
+            if self.__expression[pos+1].lower().isalpha() or self.__expression[pos+1] == self.left_bracket \
+                    or (self.__expression[pos] == self.right_bracket
+                        and self.__is_number(self.__expression[pos+1]) is True):
+                self.__expression = self.__expression[:pos+1] + '*' + self.__expression[pos+1:]
 
     @staticmethod
     def remove_spaces(expr):
-        # Removes white spaces
+        """Removes white spaces"""
         rg = re.compile(r'\s+')
         return rg.sub('', expr)
 
     @staticmethod
     def __is_number(symbol):
-        # Checks a token
+        """Checks a token"""
         return True if symbol.isdigit() or symbol == '.' else False
 
     @staticmethod
     def __is_function(symbol):
-        # Is the token a function
+        """Is the token a function"""
         return True if symbol.lower().isalnum() else False
