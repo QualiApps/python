@@ -30,8 +30,8 @@ class InToPostNotation():
         self.__expression = self.remove_spaces(expr)
         self.__clear_output()
         while current < len(self.__expression):
-            token = self.__expression[current]
             self.__check_expr(current)
+            token = self.__expression[current]
             # If token is number -> add to the output string
             if self.__is_number(token) is True:
                 self.__set_output(token, space)
@@ -145,9 +145,23 @@ class InToPostNotation():
         return True if symbol in self.operators else False
 
     def __check_expr(self, pos):
-        """Checks the sign of the operand"""
-        if (self.__expression[pos] in ('-', '+')) \
-                and (pos == 0 or pos > 0 and self.__expression[pos-1] in (self.left_bracket, self.args_separator)):
+        """Checks the sign of the operand and changes multi operators"""
+        operands = ('-', '+')
+        if self.__expression[pos] in operands and pos < len(self.__expression)-1 \
+                and self.__expression[pos+1] == self.__expression[pos]:
+            next_pos = pos+1
+            # Execute until other operator
+            while self.__expression[pos] == self.__expression[next_pos]:
+                next_pos += 1
+            if self.__expression[pos] == '+':
+                self.__expression = self.__expression[:pos] + self.__expression[next_pos-1:]
+            elif self.__expression[pos] == '-':
+                if (pos-next_pos) % 2 == 0:
+                    self.__expression = self.__expression[:pos] + "+" + self.__expression[next_pos:]
+                else:
+                    self.__expression = self.__expression[:pos] + "-" + self.__expression[next_pos:]
+        if (self.__expression[pos] in operands) \
+                and (pos == 0 or (pos > 0 and self.__expression[pos-1] in (self.left_bracket, self.args_separator))):
             self.__set_output('0')
 
     def __check_expr_mul(self, pos):
