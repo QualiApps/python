@@ -14,7 +14,7 @@ class InToPostNotation():
         self.left_bracket = '('
         self.right_bracket = ')'
         # Available operators and their precedences
-        self.operators = {'**': 4, '*': 3, '/': 3, '//': 3, '%': 3, '-': 2, '+': 1}
+        self.operators = {'**': 5, '_': 5, '*': 3, '/': 3, '//': 3, '%': 3, '-': 3, '+': 1}
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -134,6 +134,7 @@ class InToPostNotation():
 
     def __get_output(self):
         """Retrieves RPN"""
+        print self.__output
         return self.__output
 
     def __check_prior(self, symbol):
@@ -147,25 +148,20 @@ class InToPostNotation():
     def __check_expr(self, pos):
         """Checks the sign of the operand and changes multi operators"""
         operands = ('-', '+')
-        if self.__expression[pos] in operands and pos < len(self.__expression)-1 \
-                and self.__expression[pos+1] == self.__expression[pos]:
-            next_pos = pos+1
-            # Execute until other operator
-            while self.__expression[pos] == self.__expression[next_pos]:
-                next_pos += 1
-            if self.__expression[pos] == '+':
-                self.__expression = self.__expression[:pos] + self.__expression[next_pos-1:]
-            elif self.__expression[pos] == '-':
-                if (pos-next_pos) % 2 == 0:
-                    self.__expression = self.__expression[:pos] + "+" + self.__expression[next_pos:]
-                else:
-                    self.__expression = self.__expression[:pos] + "-" + self.__expression[next_pos:]
-        if (self.__expression[pos] in operands) \
-                and (pos == 0 or (pos > 0 and self.__expression[pos-1] in (self.left_bracket, self.args_separator))):
-            self.__set_output('0')
+        current = pos
+        sign = ''
+        if self.__expression[pos] in operands:
+            while self.__expression[current] in operands:
+                sign = '-' if (self.__expression[current] == '+' and sign == '-') or (self.__expression[current] == '-' and sign != '-') else '+'
+                current += 1
+        u_minus = sign
+        if pos == 0 or pos > 0 and self.__expression[pos-1] in (self.left_bracket, self.args_separator) \
+                or self.__expression[pos-1] in ('*', '/', '%'):
+            u_minus = '_' if sign == '-' else ''
+        self.__expression = self.__expression[:pos] + u_minus + self.__expression[current:]
 
     def __check_expr_mul(self, pos):
-        """Adds the '*' to the input expression if it includes 3(...; 3function(; )6"""
+        """Adds the '*' to the input expression if it includes 3(...; 3function(; or )6"""
         if pos < len(self.__expression)-1:
             if self.__expression[pos+1].lower().isalpha() or self.__expression[pos+1] == self.left_bracket \
                     or (self.__expression[pos] == self.right_bracket

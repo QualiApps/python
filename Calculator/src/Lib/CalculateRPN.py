@@ -8,7 +8,8 @@ class CalculateRPN():
 
     def __init__(self, flag='F'):
         self.__number = 0
-        self.operators = {'**': 'pow', '*': 'mul', '/': 'div', '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
+        self.operators = {'_': 'neg', '**': 'pow', '*': 'mul', '/': 'div',
+                          '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
         self.function_flag = flag
 
     def __new__(cls, *args, **kwargs):
@@ -25,11 +26,14 @@ class CalculateRPN():
             token = rpn[position]
             # If operator
             if token in self.operators:
-                if len(stack) < 2:
-                    raise Exception("Invalid syntax near the operator: " + token)
-                b = stack.pop()
-                a = stack.pop()
-                stack.append(self.action(token, a, b))
+                if token == '_':
+                    stack.append(self.action(token, stack.pop()))
+                else:
+                    if len(stack) < 2:
+                        raise Exception("Invalid syntax near the operator: " + token)
+                    b = stack.pop()
+                    a = stack.pop()
+                    stack.append(self.action(token, a, b))
             # If function
             elif self.is_function(token):
                 args = list()

@@ -8,10 +8,12 @@ while True:
     # Exit action
     if expression == 'exit':
         break
-    #try:
-    rpn = InToPostNotation().get_rpn(expression)
-    result = "Result = " + str(CalculateRPN().calculate_expr(rpn))
-    #except Exception as e:
-    #    result = e
-    #finally:
-    print result
+    try:
+        rpn = InToPostNotation().get_rpn(expression)
+        result = "Result = " + str(CalculateRPN().calculate_expr(rpn))
+    except IndexError:
+        result = 'Syntax Error: invalid syntax'
+    except Exception as e:
+        result = e
+    finally:
+        print result
