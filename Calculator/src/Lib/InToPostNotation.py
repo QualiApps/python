@@ -80,9 +80,9 @@ class InToPostNotation():
                     stack_token = stack[stack_size - 1]
                     if self.__is_operator(stack_token) is True \
                             and ((self.__left_assoc(token) is True and (
-                                self.__check_prior(token) <= self.__check_prior(stack_token)))
+                                        self.__check_prior(token) <= self.__check_prior(stack_token)))
                                  and (self.__left_assoc(token) is False and (
-                                    self.__check_prior(token) < self.__check_prior(stack_token)))):
+                                            self.__check_prior(token) < self.__check_prior(stack_token)))):
                         self.__set_output(stack_token)
                         stack_size -= 1
                     else:
@@ -155,8 +155,8 @@ class InToPostNotation():
         return self.operators.get(symbol, (lambda: 0)())
 
     def __left_assoc(self, symbol):
-        """Check priority"""
-        return False if symbol == '_' else True
+        """Check assoc (if unary simbol that is right-assoc)"""
+        return False if symbol == self.unary_symbol else True
 
     def __is_operator(self, symbol):
         """Check if operator"""
