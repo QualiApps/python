@@ -7,7 +7,7 @@ python
 <li>infinite nesting of functions (ex: function(function(1,2),function(3,4)))</li>
 <li>priority of operations</li>
 <li>brackets</li>
-<li>all math functions</li>
+<li>all math functions and constants</li>
 <li>custom functions</li>
-<li>add new functions and operators</li>
+<li>add new custom functions</li>
 </ul>

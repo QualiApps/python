@@ -6,9 +6,10 @@ import operator
 class CalculateRPN():
     _instance = None
 
-    def __init__(self, flag='F'):
+    def __init__(self, flag='F', unary='_'):
         self.__number = 0
-        self.operators = {'_': 'neg', '**': 'pow', '*': 'mul', '/': 'div',
+        self.unary_symbol = unary
+        self.operators = {self.unary_symbol: 'neg', '**': 'pow', '^': 'pow', '*': 'mul', '/': 'div',
                           '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
         self.function_flag = flag
 
@@ -26,7 +27,7 @@ class CalculateRPN():
             token = rpn[position]
             # If operator
             if token in self.operators:
-                if token == '_':
+                if token == self.unary_symbol:
                     stack.append(self.action(token, stack.pop()))
                 else:
                     if len(stack) < 2:
@@ -44,7 +45,7 @@ class CalculateRPN():
                         break
                     args.append(argument)
                 stack.append(self.function(token, args))
-            #If number
+            # If number
             elif self.digit(token):
                 stack.append(self.__number)
             #If start flag of function
