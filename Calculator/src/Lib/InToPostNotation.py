@@ -147,7 +147,7 @@ class InToPostNotation():
 
     def __get_output(self):
         """Retrieves RPN"""
-        print self.__output
+        #print self.__output
         return self.__output
 
     def __check_prior(self, symbol):
