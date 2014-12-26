@@ -1,4 +1,5 @@
 __author__ = 'yuri'
+import __builtin__ as builtin
 import math
 import operator
 
@@ -48,7 +49,7 @@ class CalculateRPN():
             # If number
             elif self.digit(token):
                 stack.append(self.__number)
-            #If start flag of function
+            # If start flag of function
             elif token == self.function_flag:
                 stack.append(token)
             else:
@@ -79,13 +80,16 @@ class CalculateRPN():
             function = getattr(math, name)
         elif self.check_function(name, self):
             function = getattr(self, name)
+        elif self.check_function(name, builtin):
+            function = getattr(builtin, name)
         else:
             raise Exception("Unsupported function of the expression: " + name)
         return function(*args)
 
     def is_function(self, function):
         """Check if function"""
-        return True if self.check_function(function, math) or self.check_function(function, self) else False
+        return True if self.check_function(function, math) or self.check_function(function, self) \
+                       or self.check_function(function, builtin) else False
 
     @staticmethod
     def check_function(name, obj):

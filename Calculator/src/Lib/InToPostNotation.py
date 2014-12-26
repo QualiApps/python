@@ -16,7 +16,7 @@ class InToPostNotation():
         self.left_bracket = '('
         self.right_bracket = ')'
         # Available operators and their precedences
-        self.operators = {'_': 7, '^': 6, '**': 6, '*': 4, '/': 4, '//': 4, '%': 4, '-': 2, '+': 2}
+        self.operators = {self.unary_symbol: 6, '^': 6, '**': 6, '*': 4, '/': 4, '//': 4, '%': 4, '-': 2, '+': 2}
         self.pm_operators = ('-', '+')
         self.hp_operators = ('^', '*', '/', '%')
 
@@ -76,32 +76,25 @@ class InToPostNotation():
                     raise Exception("Error: separator or parentheses mismatched")
             # If the operator -> add to the stack or add to the output string
             elif self.__is_operator(token) is True:
+                # Check if a double operator
+                if current < len(self.__expression) - 1 and self.__expression[current + 1] == token and \
+                        self.__is_operator(token + self.__expression[current + 1]) is True:
+                    token = token + self.__expression[current + 1]
+                    self.__expression = self.__expression[:current] + self.__expression[current + 1:]
                 while stack_size > 0:
                     stack_token = stack[stack_size - 1]
                     if self.__is_operator(stack_token) is True \
-                            and ((self.__left_assoc(token) is True and (
-                                        self.__check_prior(token) <= self.__check_prior(stack_token)))
-                                 and (self.__left_assoc(token) is False and (
-                                            self.__check_prior(token) < self.__check_prior(stack_token)))):
+                            and (((self.__left_assoc(token) is True and (
+                                self.__check_prior(token) <= self.__check_prior(stack_token)))
+                            or (self.__left_assoc(token) is False and (
+                                self.__check_prior(token) < self.__check_prior(stack_token))))):
                         self.__set_output(stack_token)
                         stack_size -= 1
                     else:
                         break
-                # Check if a double operator
-                if len(stack) > stack_size and stack[stack_size] == token \
-                        and current > 0 and self.__expression[current - 1] == token \
-                        and self.__is_operator(stack[stack_size] + token) is True:
-                    stack[stack_size] += token  # Concatenate operators
-                else:
-                    stack.insert(stack_size, token)
-                # If next operator is the same and it's available
-                if current + 1 <= len(self.__expression) and self.__expression[current + 1] == token \
-                        and self.__is_operator(token + self.__expression[current + 1]) is True:
-                    delimiter = ''
-                else:
-                    delimiter = ' '
-                    stack_size += 1
-                self.__set_output(delimiter, False)
+                stack.insert(stack_size, token)
+                stack_size += 1
+                self.__set_output(' ', False)
             elif token == self.left_bracket:
                 stack.insert(stack_size, token)
                 stack_size += 1
@@ -156,7 +149,7 @@ class InToPostNotation():
 
     def __left_assoc(self, symbol):
         """Check assoc (if unary simbol that is right-assoc)"""
-        return False if symbol == self.unary_symbol else True
+        return False if symbol in (self.unary_symbol, '**', '^') else True
 
     def __is_operator(self, symbol):
         """Check if operator"""
