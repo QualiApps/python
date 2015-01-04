@@ -3,27 +3,30 @@ import re
 import math
 
 
-class InToPostNotation():
+class InToPostNotation(object):
     """Create a reverse polish notation ( 3+2 -> 3 2 +, or 3+2+function(1,2) -> 3 2 F 1 2 function + +)"""
-    _instance = None
+    __instance = None
 
     def __init__(self, flag='F', unary='_'):
-        self.__expression = ''
-        self.__output = ''
-        self.function_flag = flag  # The start flag of the function arguments
-        self.args_separator = ','  # The delimiter of the function arguments
-        self.unary_symbol = unary
-        self.left_bracket = '('
-        self.right_bracket = ')'
-        # Available operators and their precedences
-        self.operators = {self.unary_symbol: 6, '^': 6, '**': 6, '*': 4, '/': 4, '//': 4, '%': 4, '-': 2, '+': 2}
-        self.pm_operators = ('-', '+')
-        self.hp_operators = ('^', '*', '/', '%')
+        if not self.__initialized:
+            self.__expression = ''
+            self.__output = ''
+            self.function_flag = flag  # The start flag of the function arguments
+            self.args_separator = ','  # The delimiter of the function arguments
+            self.unary_symbol = unary
+            self.left_bracket = '('
+            self.right_bracket = ')'
+            # Available operators and their precedences
+            self.operators = {self.unary_symbol: 6, '^': 6, '**': 6, '*': 4, '/': 4, '//': 4, '%': 4, '-': 2, '+': 2}
+            self.pm_operators = ('-', '+')
+            self.hp_operators = ('^', '*', '/', '%')
+            self.__initialized = True
 
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(InToPostNotation, cls).__new__(cls, *args, **kwargs)
-        return cls._instance
+        if not cls.__instance:
+            cls.__instance = super(InToPostNotation, cls).__new__(cls, *args, **kwargs)
+            cls.__instance.__initialized = False
+        return cls.__instance
 
     def get_rpn(self, expr):
         """Generate RPN"""
@@ -78,16 +81,16 @@ class InToPostNotation():
             elif self.__is_operator(token) is True:
                 # Check if a double operator
                 if current < len(self.__expression) - 1 and self.__expression[current + 1] == token and \
-                        self.__is_operator(token + self.__expression[current + 1]) is True:
+                                self.__is_operator(token + self.__expression[current + 1]) is True:
                     token = token + self.__expression[current + 1]
                     self.__expression = self.__expression[:current] + self.__expression[current + 1:]
                 while stack_size > 0:
                     stack_token = stack[stack_size - 1]
                     if self.__is_operator(stack_token) is True \
                             and (((self.__left_assoc(token) is True and (
-                                self.__check_prior(token) <= self.__check_prior(stack_token)))
-                            or (self.__left_assoc(token) is False and (
-                                self.__check_prior(token) < self.__check_prior(stack_token))))):
+                                        self.__check_prior(token) <= self.__check_prior(stack_token)))
+                                  or (self.__left_assoc(token) is False and (
+                                            self.__check_prior(token) < self.__check_prior(stack_token))))):
                         self.__set_output(stack_token)
                         stack_size -= 1
                     else:
@@ -140,7 +143,6 @@ class InToPostNotation():
 
     def __get_output(self):
         """Retrieves RPN"""
-        #print self.__output
         return self.__output
 
     def __check_prior(self, symbol):
@@ -148,7 +150,7 @@ class InToPostNotation():
         return self.operators.get(symbol, (lambda: 0)())
 
     def __left_assoc(self, symbol):
-        """Check assoc (if unary simbol that is right-assoc)"""
+        """Check assoc (if unary symbol that is right-assoc)"""
         return False if symbol in (self.unary_symbol, '**', '^') else True
 
     def __is_operator(self, symbol):

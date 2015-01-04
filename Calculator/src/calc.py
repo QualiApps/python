@@ -15,6 +15,7 @@ def calculate(string):
     finally:
         print result
 
+
 if len(sys.argv) > 1:
     """If the file of expressions"""
     try:
@@ -34,4 +35,5 @@ else:
             else:
                 calculate(expression)
         except KeyboardInterrupt:
+            print ''
             exit()

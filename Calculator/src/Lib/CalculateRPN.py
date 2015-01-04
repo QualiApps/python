@@ -4,20 +4,24 @@ import math
 import operator
 
 
-class CalculateRPN():
-    _instance = None
+class CalculateRPN(object):
+    """This instance to calculate RPN expression"""
+    __instance = None
 
     def __init__(self, flag='F', unary='_'):
-        self.__number = 0
-        self.unary_symbol = unary
-        self.operators = {self.unary_symbol: 'neg', '**': 'pow', '^': 'pow', '*': 'mul', '/': 'div',
-                          '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
-        self.function_flag = flag
+        if not self.__initialized:
+            self.__number = 0
+            self.unary_symbol = unary
+            self.operators = {self.unary_symbol: 'neg', '**': 'pow', '^': 'pow', '*': 'mul', '/': 'div',
+                              '//': 'floordiv', '%': 'mod', '-': 'sub', '+': 'add'}
+            self.function_flag = flag
+            self.__initialized = True
 
     def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(CalculateRPN, cls).__new__(cls, *args, **kwargs)
-        return cls._instance
+        if not cls.__instance:
+            cls.__instance = super(CalculateRPN, cls).__new__(cls, *args, **kwargs)
+            cls.__instance.__initialized = False
+        return cls.__instance
 
     def calculate_expr(self, rpn):
         """Calculate RPN"""
